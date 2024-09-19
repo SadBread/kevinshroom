@@ -26,7 +26,6 @@ public class PlayerMovement : MonoBehaviour
     private bool canMove;
     private int startingHealth = 5;
     private int currentHealth = 0;
-    public int mushroomsCollected = 0;
 
     //
     private int jumpBuffer = 0;
@@ -40,12 +39,9 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //GameObject.DontDestroyOnLoad(this.gameObject);
-
         canMove = true;
         currentHealth = startingHealth;
-        mushroomText.text = "" + mushroomsCollected;
-
+        mushroomText.text = "" + Info.mushroomsCollected;
         rgbd = GetComponent<Rigidbody2D>();
         rend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
@@ -101,8 +97,8 @@ public class PlayerMovement : MonoBehaviour
         if (other.CompareTag("Mushroom"))
         {
             Destroy(other.gameObject);
-            mushroomsCollected++;
-            mushroomText.text = "" + mushroomsCollected;
+            Info.mushroomsCollected++;
+            mushroomText.text = "" + Info.mushroomsCollected;
             audioSource.PlayOneShot(pickupSound, 0.05f);
             audioSource.pitch = Random.Range(0.8f, 1.2f);
         }

@@ -11,6 +11,7 @@ public class QuestChecker : MonoBehaviour
 
     private Animator anim;
     private bool levelIsLoading = false;
+
     private void Start()
     {
         anim = GetComponent<Animator>();
@@ -19,7 +20,7 @@ public class QuestChecker : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (other.GetComponent<PlayerMovement>().mushroomsCollected >= questGoal)
+            if (Info.mushroomsCollected >= questGoal)
             {
                 dialogueBox.SetActive(true);
                 finishedText.SetActive(true);
