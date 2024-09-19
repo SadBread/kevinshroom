@@ -25,8 +25,12 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool canMove;
     private int startingHealth = 5;
-    private int currentHealth = 0;  
-    public int mushroomsCollected = 0; 
+    private int currentHealth = 0;
+    public int mushroomsCollected = 0;
+
+    //
+    private int jumpBuffer = 0;
+    //
 
     private Rigidbody2D rgbd;
     private SpriteRenderer rend;
@@ -36,6 +40,8 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //GameObject.DontDestroyOnLoad(this.gameObject);
+
         canMove = true;
         currentHealth = startingHealth;
         mushroomText.text = "" + mushroomsCollected;
@@ -44,6 +50,9 @@ public class PlayerMovement : MonoBehaviour
         rend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+
+        transform.position = spawnPosition.position;
+        GetComponent<Rigidbody2D>().velocity = Vector2.zero;
     }
 
     // Update is called once per frame
@@ -61,9 +70,15 @@ public class PlayerMovement : MonoBehaviour
             FlipSprite(false);
         }
 
-        if (Input.GetButtonDown("Jump") && CheckIfGrounded() == true)
+        if ((Input.GetButtonDown("Jump") || jumpBuffer > 0) && CheckIfGrounded() == true)
         {
             Jump();
+        }
+
+        if (jumpBuffer > 0) { --jumpBuffer; }
+        if (Input.GetButtonDown("Jump") && CheckIfGrounded() == false)
+        {
+            jumpBuffer = 50;
         }
 
         anim.SetFloat("MoveSpeed", Mathf.Abs(rgbd.velocity.x));
@@ -73,7 +88,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!canMove)
+        if (!canMove)
         {
             return;
         }
@@ -92,7 +107,7 @@ public class PlayerMovement : MonoBehaviour
             audioSource.pitch = Random.Range(0.8f, 1.2f);
         }
 
-        if(other.CompareTag("Health"))
+        if (other.CompareTag("Health"))
         {
             RestoreHealth(other.gameObject);
         }
@@ -105,13 +120,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
+        jumpBuffer = 0;
+
+        rgbd.velocity = new Vector2(rgbd.velocity.x, 0);
         rgbd.AddForce(new Vector2(0, jumpForce));
         audioSource.PlayOneShot(jumpSound, 0.25f);
     }
 
     public void TakeDamage(int damageAmount)
     {
-        currentHealth-= damageAmount;
+        currentHealth -= damageAmount;
         UpdateHealthBar();
 
         if (currentHealth <= 0)
@@ -122,8 +140,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void TakeKnockBack(float knockbackForce, float upwards)
     {
-        canMove = false;    
-        rgbd.AddForce(new Vector2 (knockbackForce, upwards));
+        canMove = false;
+        rgbd.AddForce(new Vector2(knockbackForce, upwards));
         Invoke("CanMoveAgain", 0.25f);
     }
 
@@ -141,7 +159,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void RestoreHealth(GameObject healthPickup)
     {
-        if(currentHealth >= startingHealth)
+        if (currentHealth >= startingHealth)
         {
             return;
         }
@@ -149,8 +167,8 @@ public class PlayerMovement : MonoBehaviour
         {
             int healthToRestore = healthPickup.GetComponent<HealthPickups>().healthAmount;
             currentHealth += healthToRestore;
-            UpdateHealthBar ();
-            Destroy (healthPickup);
+            UpdateHealthBar();
+            Destroy(healthPickup);
 
             if (currentHealth >= startingHealth)
             {
@@ -163,7 +181,7 @@ public class PlayerMovement : MonoBehaviour
     {
         healthSlider.value = currentHealth;
 
-        if(currentHealth >= 2)
+        if (currentHealth >= 2)
         {
             fillColor.color = goodHealth;
         }
@@ -171,8 +189,6 @@ public class PlayerMovement : MonoBehaviour
         {
             fillColor.color = badHealth;
         }
-
-
     }
 
     private bool CheckIfGrounded()
@@ -191,6 +207,5 @@ public class PlayerMovement : MonoBehaviour
         {
             return false;
         }
-
     }
 }
