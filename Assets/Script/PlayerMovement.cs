@@ -29,6 +29,8 @@ public class PlayerMovement : MonoBehaviour
 
     //
     private int jumpBuffer = 0;
+    private int coyoteTime = 0;
+    private int coyoteWait = 0;
     //
 
     private Rigidbody2D rgbd;
@@ -66,7 +68,10 @@ public class PlayerMovement : MonoBehaviour
             FlipSprite(false);
         }
 
-        if ((Input.GetButtonDown("Jump") || jumpBuffer > 0) && CheckIfGrounded() == true)
+        if (coyoteWait > 0) { coyoteWait--; }
+        if (CheckIfGrounded()) { if (coyoteWait == 0) { coyoteTime = 30; } } else { if (coyoteTime > 0) { coyoteTime--; } }
+
+        if ((Input.GetButtonDown("Jump") || jumpBuffer > 0) && (coyoteTime > 0 || CheckIfGrounded()))
         {
             Jump();
         }
@@ -117,6 +122,8 @@ public class PlayerMovement : MonoBehaviour
     private void Jump()
     {
         jumpBuffer = 0;
+        coyoteTime = 0;
+        coyoteWait = 30;
 
         rgbd.velocity = new Vector2(rgbd.velocity.x, 0);
         rgbd.AddForce(new Vector2(0, jumpForce));
