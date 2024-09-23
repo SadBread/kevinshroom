@@ -41,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Info.keysCollected = 0;
+
         canMove = true;
         currentHealth = startingHealth;
         mushroomText.text = "" + Info.mushroomsCollected;
@@ -104,8 +106,8 @@ public class PlayerMovement : MonoBehaviour
             Destroy(other.gameObject);
             Info.mushroomsCollected++;
             mushroomText.text = "" + Info.mushroomsCollected;
-            audioSource.PlayOneShot(pickupSound, 0.05f);
             audioSource.pitch = Random.Range(0.8f, 1.2f);
+            audioSource.PlayOneShot(pickupSound, 0.05f);
         }
 
         if (other.CompareTag("Health"))
@@ -113,6 +115,14 @@ public class PlayerMovement : MonoBehaviour
             RestoreHealth(other.gameObject);
         }
 
+        if (other.CompareTag("Key"))
+        {
+            audioSource.pitch = Random.Range(0.8f, 1.2f);
+            audioSource.PlayOneShot(pickupSound, 0.05f);
+            Destroy(other.gameObject);
+
+            Info.keysCollected++;
+        }
     }
     private void FlipSprite(bool direction)
     {

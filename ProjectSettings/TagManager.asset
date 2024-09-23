@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Mushroom
   - Health
+  - Key
   layers:
   - Default
   - TransparentFX
